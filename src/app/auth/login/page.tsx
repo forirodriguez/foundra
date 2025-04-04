@@ -17,16 +17,38 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
+      // Check if user exists in users table
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("id", data.user.id)
+        .single();
+
+      // If user doesn't exist in users table, create it with admin role
+      if (userError && userError.code === "PGRST116") {
+        const { error: insertError } = await supabase.from("users").insert([
+          {
+            id: data.user.id,
+            email: data.user.email,
+            role: "admin", // Set as admin for testing
+          },
+        ]);
+
+        if (insertError) {
+          console.error("Error creating user record:", insertError);
+        }
+      }
+
       router.push("/dashboard");
-    } catch (error) {
-      setError(`${error}Invalid email or password `);
+    } catch (error: any) {
+      setError(error.message || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
