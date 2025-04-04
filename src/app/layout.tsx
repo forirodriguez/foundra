@@ -5,6 +5,8 @@ import QueryProvider from "@/components/providers/query-provider";
 import { UserProvider } from "@/contexts/user-context";
 import UserStatus from "@/components/user-status";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,11 +16,16 @@ export const metadata: Metadata = {
     "Find your perfect property with Foundra - Modern Real Estate Platform",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
+  await supabase.auth.getSession();
+
   return (
     <html lang="en">
       <body className={inter.className}>

@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { useState } from "react";
 
 const bookingSchema = z.object({
@@ -23,37 +23,47 @@ interface BookingFormProps {
 
 export default function BookingForm({ propertyId }: BookingFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const supabase = createClient();
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
     reset,
+    formState: { errors },
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
   });
 
   const onSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
-    setSubmitError(null);
+    setError(null);
 
     try {
       const { error } = await supabase.from("bookings").insert([
         {
           property_id: propertyId,
-          ...data,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          preferred_date: data.preferred_date,
+          preferred_time: data.preferred_time,
+          visit_type: data.visit_type,
           status: "pending",
         },
       ]);
 
-      if (error) throw error;
+      if (error) {
+        setError("Failed to submit booking. Please try again.");
+        setIsSubmitting(false);
+        return;
+      }
 
-      setSubmitSuccess(true);
+      setIsSuccess(true);
       reset();
-    } catch (error) {
-      setSubmitError(`${error}: Failed to submit booking. Please try again.`);
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -177,9 +187,9 @@ export default function BookingForm({ propertyId }: BookingFormProps) {
         )}
       </div>
 
-      {submitError && <p className="text-sm text-red-600">{submitError}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
-      {submitSuccess && (
+      {isSuccess && (
         <p className="text-sm text-green-600">
           Booking request submitted successfully!
         </p>

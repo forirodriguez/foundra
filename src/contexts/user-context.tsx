@@ -7,7 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 interface UserContextType {
@@ -28,6 +28,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
     // Get initial session
@@ -105,19 +106,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error("Error signing out:", error);
-      }
+      await supabase.auth.signOut();
       setUser(null);
       setUserRole(null);
     } catch (error) {
-      console.error("Error in signOut:", error);
+      console.error("Error signing out:", error);
     }
   };
 
   return (
-    <UserContext.Provider value={{ user, userRole, isLoading, signOut }}>
+    <UserContext.Provider
+      value={{
+        user,
+        userRole,
+        isLoading,
+        signOut,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );

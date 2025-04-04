@@ -1,9 +1,13 @@
 export const dynamic = "force-dynamic";
-import { supabase } from "@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
 import PropertyCard from "@/components/ui/property-card";
 import MainLayout from "@/components/layout/main-layout";
 
 async function getPropertiesForSale() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+
   const { data: properties, error } = await supabase
     .from("properties")
     .select("*")
@@ -22,17 +26,9 @@ export default async function PropertiesForSalePage() {
 
   return (
     <MainLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Properties for Sale
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Discover your dream home from our selection of premium properties
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="container mx-auto px-4 py-8">
+        <h1 className="mb-8 text-3xl font-bold">Properties for Sale</h1>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {properties.map((property) => (
             <PropertyCard key={property.id} property={property} />
           ))}

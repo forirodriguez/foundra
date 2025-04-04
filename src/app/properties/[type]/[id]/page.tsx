@@ -1,4 +1,3 @@
-import { supabase } from "@/lib/supabase/client";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import MainLayout from "@/components/layout/main-layout";
