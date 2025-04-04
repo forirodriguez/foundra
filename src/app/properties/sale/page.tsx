@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { supabase } from "@/lib/supabase/client";
 import PropertyCard from "@/components/ui/property-card";
 import MainLayout from "@/components/layout/main-layout";

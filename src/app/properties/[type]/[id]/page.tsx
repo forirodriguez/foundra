@@ -4,7 +4,6 @@ import Image from "next/image";
 import MainLayout from "@/components/layout/main-layout";
 import BookingForm from "@/components/forms/booking-form";
 import { formatCurrency } from "@/lib/utils";
-import { Property } from "@/types/database";
 
 async function getProperty(id: string) {
   const { data: property, error } = await supabase
@@ -23,14 +22,14 @@ async function getProperty(id: string) {
 export default async function PropertyDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ type: string; id: string }>;
 }) {
-  const property = await getProperty(params.id);
+  const { id } = await params;
+  const property = await getProperty(id);
 
   if (!property) {
     notFound();
   }
-
   return (
     <MainLayout>
       <div className="space-y-8">

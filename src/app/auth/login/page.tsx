@@ -23,9 +23,8 @@ export default function LoginPage() {
       });
 
       if (error) throw error;
-
       // Check if user exists in users table
-      const { data: userData, error: userError } = await supabase
+      const { error: userError } = await supabase
         .from("users")
         .select("id")
         .eq("id", data.user.id)
@@ -47,6 +46,7 @@ export default function LoginPage() {
       }
 
       router.push("/dashboard");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.message || "Invalid email or password");
     } finally {

@@ -53,7 +53,7 @@ export default function BookingForm({ propertyId }: BookingFormProps) {
       setSubmitSuccess(true);
       reset();
     } catch (error) {
-      setSubmitError("Failed to submit booking. Please try again.");
+      setSubmitError(`${error}: Failed to submit booking. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
